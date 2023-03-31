@@ -15,6 +15,15 @@ pip install -r requirements.tzt
 }
 
 
+request
+
+Content-Type: text/plain
+body
+{
+    "image64": base64 encode png data
+}
+
+
 response
 
 {
@@ -22,4 +31,7 @@ response
     "storage_url": file storage url
 }
 
+
+port
+13130
 
