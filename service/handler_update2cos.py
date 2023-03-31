@@ -34,17 +34,16 @@ class Handler_update2cos(tornado.web.RequestHandler):
             content = json.loads(body)
             image64 = content['image64']
 
-            bytes_image = base64.b64decode(image64)
-            image_buff = BytesIO(bytes_image)
+            bytes_image = base64.standard_b64decode(image64)
+            hash = UtilsHash.calc_data_md5(bytes_image)
 
-            hash = UtilsHash.calc_data_md5(image_buff)
-            filename = './{}.png'.format(hash)
-            UtilsFile.writeFileBinary(filename, image_buff)
+            filename = './temp/{}.png'.format(hash)
+            UtilsFile.writeFileBinary(filename, bytes_image)
 
             url = self.upload(filename, hash)
 
-            response = ResponseHelper.generateResponse(False)
-            response['url'] = url
+            response = ResponseHelper.generateResponse(True)
+            response['storage_url'] = url
 
             self.write(json.dumps(response))
             self.finish()
@@ -68,11 +67,10 @@ class Handler_update2cos(tornado.web.RequestHandler):
         content = UtilsFile.readFileContent(filename)
         content = json.loads(content)
 
-        self.secret_id = content['secret_id']
-        self.secret_key = content['secret_key']
-        self.region = content['region']
-        self.Bucket = content['Bucket']
-
+        Handler_update2cos.secret_id = content['secret_id']
+        Handler_update2cos.secret_key = content['secret_key']
+        Handler_update2cos.region = content['region']
+        Handler_update2cos.Bucket = content['Bucket']
         Handler_update2cos.initialized = True
 
 
@@ -85,9 +83,9 @@ class Handler_update2cos(tornado.web.RequestHandler):
         logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
         # 1. 设置用户属性, 包括 secret_id, secret_key, region等。Appid 已在 CosConfig 中移除，请在参数 Bucket 中带上 Appid。Bucket 由 BucketName-Appid 组成
-        secret_id = self.secret_id  # 用户的 SecretId，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参见 https://cloud.tencent.com/document/product/598/37140
-        secret_key = self.secret_key  # 用户的 SecretKey，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参见 https://cloud.tencent.com/document/product/598/37140
-        region = self.region  # 替换为用户的 region，已创建桶归属的 region 可以在控制台查看，https://console.cloud.tencent.com/cos5/bucket
+        secret_id = Handler_update2cos.secret_id  # 用户的 SecretId，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参见 https://cloud.tencent.com/document/product/598/37140
+        secret_key = Handler_update2cos.secret_key  # 用户的 SecretKey，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参见 https://cloud.tencent.com/document/product/598/37140
+        region = Handler_update2cos.region  # 替换为用户的 region，已创建桶归属的 region 可以在控制台查看，https://console.cloud.tencent.com/cos5/bucket
         # COS 支持的所有 region 列表参见 https://cloud.tencent.com/document/product/436/6224
         token = None  # 如果使用永久密钥不需要填入 token，如果使用临时密钥需要填入，临时密钥生成和使用指引参见 https://cloud.tencent.com/document/product/436/14048
         scheme = 'https'  # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
@@ -100,14 +98,14 @@ class Handler_update2cos(tornado.web.RequestHandler):
         # 强烈建议您以二进制模式(binary mode)打开文件,否则可能会导致错误
         # filename = 'face.png'
 
-        # md5 = UtilsHash.calc_file_md5(filename)
+        md5 = UtilsHash.calc_file_md5(filename)
 
         if md5:
-            key = 'img_' + md5 + '.png',
+            key = 'img_' + md5 + '.png'
 
             with open(filename, 'rb') as fp:
                 response = client.put_object(
-                    Bucket=self.Bucket,
+                    Bucket=Handler_update2cos.Bucket,
                     Body=fp,
                     Key=key,
                     StorageClass='STANDARD',

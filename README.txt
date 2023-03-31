@@ -19,7 +19,7 @@ response
 
 {
     "status": True / False,
-    "url": file storage url
+    "storage_url": file storage url
 }
 
 

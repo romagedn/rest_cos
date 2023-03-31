@@ -7,6 +7,7 @@ class ResponseHelper:
             fields = {}
         info = {
             'status': status,
-        }.update(fields)
+        }
+        info.update(fields)
         return info
 
