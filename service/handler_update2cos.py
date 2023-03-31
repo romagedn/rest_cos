@@ -98,7 +98,7 @@ class Handler_update2cos(tornado.web.RequestHandler):
         # 强烈建议您以二进制模式(binary mode)打开文件,否则可能会导致错误
         # filename = 'face.png'
 
-        md5 = UtilsHash.calc_file_md5(filename)
+        # md5 = UtilsHash.calc_file_md5(filename)
 
         if md5:
             key = 'img_' + md5 + '.png'
