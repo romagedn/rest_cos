@@ -2,6 +2,9 @@
 import sys
 import tornado.web
 import tornado.ioloop
+import tornado.httpserver
+
+from service.handler_update2cos import Handler_update2cos
 
 
 
@@ -15,13 +18,10 @@ if __name__ == "__main__":
     print('\nservice is starting\n')
 
     application = tornado.web.Application([
-        (r"/", EnteranceHandler),
-        (r"/predict", PredictHandler),
-        (r"/notify", NotifyHandler),
-        (r"/scheduler", SchedulerHandler),
-        (r"/collect", CollectRecordsHandler),
+        (r"/upload", Handler_update2cos),
     ])
     http_server = tornado.httpserver.HTTPServer(application)
-    http_server.listen(Version.PORT_PREDICT)
+    http_server.listen(13130)
     tornado.ioloop.IOLoop.instance().start()
+
 

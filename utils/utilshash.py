@@ -3,7 +3,7 @@ import hashlib
 
 class UtilsHash:
     @staticmethod
-    def calc_str_md5(str):
+    def calc_data_md5(str):
         md5hash = hashlib.md5(str)
         md5 = md5hash.hexdigest()
         return md5
