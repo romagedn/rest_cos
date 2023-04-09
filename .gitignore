@@ -2,3 +2,4 @@
 /venv
 /temp
 /config.txt
+__pycache__
